@@ -3,61 +3,88 @@ import { Document, Page, View, Text, Image, StyleSheet } from '@react-pdf/render
 import { Certificate, CERT_TYPE_LABELS, PRODUCT_LABEL, HAS_PRODUCTS } from '@/types'
 import QRCode from 'qrcode'
 
-const EAGLE = 'https://upload.wikimedia.org/wikipedia/commons/thumb/f/f0/Coat_of_arms_of_the_United_States.svg/300px-Coat_of_arms_of_the_United_States.svg.png'
-const FLAG  = 'https://upload.wikimedia.org/wikipedia/en/thumb/a/a4/Flag_of_the_United_States.svg/240px-Flag_of_the_United_States.svg.png'
+const EAGLE = 'https://pngimg.com/uploads/usa_gerb/usa_gerb_PNG4.png'
+const FLAG  = 'https://flagcdn.com/w320/us.png'
 const LOGO  = 'https://fastfwdus.com/wp-content/uploads/2026/04/FF_Logo_01-2.png'
-const NAVY  = '#1a3a5c'
-const GOLD  = '#c9a84c'
-const DISC  = 'This certificate affirms that the above stated facility is registered with the US Food and Drug Administration pursuant to the Federal Food Drug and Cosmetic Act, as amended by the Bioterrorism Act of 2002 and the FDA Food Safety Modernization Act. Such registration remains effective upon request and presentation of this certificate until 1 year after issuance date, unless such registration has been terminated. FastForward makes no other representations or warranties. The US FDA does not issue or recognize certificates of registration. FastForward is not affiliated with the US Food and Drug Administration.'
+const N = '#0f2744'
+const G = '#b8963e'
+
+const CFR_TEXT: Record<string, string> = {
+  drug: 'Is registered with the US Food and Drug Administration (FDA) pursuant to 21 CFR Part 207 — Requirements for Foreign and Domestic Establishment Registration and Drug Listing for Human Drugs, and the Drug Supply Chain Security Act (DSCSA). Such registration has been verified as currently effective on the date hereof by Fast Forward:',
+  food_initial: 'Is registered with the US Food and Drug Administration (FDA) pursuant to Section 415 of the Federal Food, Drug, and Cosmetic Act (21 U.S.C. § 350d) and 21 CFR Part 1, Subpart H — Registration of Food Facilities, as amended by the Bioterrorism Act of 2002 and the FDA Food Safety Modernization Act (FSMA). Such registration has been verified as currently effective on the date hereof by Fast Forward:',
+  food_renewal: 'Is registered with the US Food and Drug Administration (FDA) pursuant to Section 415 of the Federal Food, Drug, and Cosmetic Act (21 U.S.C. § 350d) and 21 CFR Part 1, Subpart H — Registration of Food Facilities, as amended by the Bioterrorism Act of 2002 and the FDA Food Safety Modernization Act (FSMA). Such registration has been verified as currently effective on the date hereof by Fast Forward:',
+  food_low_acid: 'Is registered with the US Food and Drug Administration (FDA) pursuant to 21 CFR Part 108 — Emergency Permit Control, and 21 CFR Parts 113 and 114 — Thermally Processed Low-Acid Foods Packaged in Hermetically Sealed Containers (LACF). Such registration has been verified as currently effective on the date hereof by Fast Forward:',
+  mocra: 'Is registered with the US Food and Drug Administration (FDA) pursuant to the Modernization of Cosmetics Regulation Act of 2022 (MoCRA), Section 607 of the Federal Food, Drug, and Cosmetic Act (21 U.S.C. § 364b), and 21 CFR Part 730 — Registration and Listing of Cosmetic Product Facilities and Products. Such registration has been verified as currently effective on the date hereof by Fast Forward:',
+}
+
+const DISC_TEXT: Record<string, string> = {
+  drug: 'This certificate affirms that the above stated establishment is registered with the US Food and Drug Administration pursuant to Section 510 of the Federal Food, Drug, and Cosmetic Act (21 U.S.C. § 360) and 21 CFR Part 207. Drug establishment registration is required for manufacturers, repackers, relabelers, and salvagers of drugs for human or animal use. Registration does not constitute an endorsement or approval of any drug product by the FDA. FastForward makes no representations or warranties beyond confirming the registration status as of the date hereof. FastForward is not affiliated with, endorsed by, or acting on behalf of the US Food and Drug Administration.',
+  food_initial: 'This certificate affirms that the above stated facility is registered with the US Food and Drug Administration pursuant to Section 415 of the FD&C Act and 21 CFR Part 1, Subpart H. Registration is required for domestic and foreign facilities that manufacture, process, pack, or hold food for human or animal consumption in the United States. Registration does not constitute FDA approval, endorsement, or certification of any food product or facility. FastForward makes no representations or warranties beyond confirming the registration status as of the date hereof. FastForward is not affiliated with the US Food and Drug Administration.',
+  food_renewal: 'This certificate affirms that the above stated facility is registered with the US Food and Drug Administration pursuant to Section 415 of the FD&C Act and 21 CFR Part 1, Subpart H. Registration is required for domestic and foreign facilities that manufacture, process, pack, or hold food for human or animal consumption in the United States. Registration does not constitute FDA approval, endorsement, or certification of any food product or facility. FastForward makes no representations or warranties beyond confirming the registration status as of the date hereof. FastForward is not affiliated with the US Food and Drug Administration.',
+  food_low_acid: 'This certificate affirms that the above stated establishment is registered with the US Food and Drug Administration pursuant to 21 CFR Parts 108, 113 and 114. LACF registration is mandatory for manufacturers of thermally processed low-acid foods in hermetically sealed containers intended for the US market. The registration number (SID) is assigned per scheduled process filed with FDA. Registration does not constitute FDA approval of any specific product or process. FastForward makes no representations or warranties beyond confirming the registration status as of the date hereof. FastForward is not affiliated with the US Food and Drug Administration.',
+  mocra: 'This certificate affirms that the above stated facility is registered with the US Food and Drug Administration pursuant to the Modernization of Cosmetics Regulation Act of 2022 (MoCRA) and 21 CFR Part 730. Cosmetic facility registration became mandatory under MoCRA for owners and operators of facilities that manufacture or process cosmetic products for distribution in the United States. Registration does not constitute FDA approval, certification, or endorsement of any cosmetic product. FastForward makes no representations or warranties beyond confirming the registration status as of the date hereof. FastForward is not affiliated with the US Food and Drug Administration.',
+}
+
+const TOPBAR_TEXT: Record<string, string> = {
+  drug: 'Drug Establishment Registration',
+  food_initial: 'Food Facility Registration',
+  food_renewal: 'Food Facility Renewal Registration',
+  food_low_acid: 'Low Acid Canned Food Establishment Registration',
+  mocra: 'Cosmetic Facility Registration (MoCRA)',
+}
 
 const s = StyleSheet.create({
-  page:     { backgroundColor:'#faf8f2', fontFamily:'Times-Roman' },
-  rim1:     { margin:14, borderWidth:5, borderColor:NAVY, padding:4 },
-  rim2:     { borderWidth:1.5, borderColor:GOLD, padding:3 },
-  rim3:     { borderWidth:0.5, borderColor:GOLD },
-  paper:    { backgroundColor:'#ffffff', padding:'18 30 16' },
-  emblems:  { flexDirection:'row', alignItems:'center', justifyContent:'center', gap:10, marginBottom:10 },
-  eagle:    { width:82, height:64 },
-  flag:     { width:56, height:37 },
-  h1:       { fontFamily:'Times-Bold', fontSize:16, textAlign:'center', letterSpacing:1.5, color:NAVY, marginBottom:3 },
-  h2:       { fontFamily:'Times-Roman', fontSize:11, textAlign:'center', color:'#333', marginBottom:2 },
-  valid:    { fontSize:11, textAlign:'center', color:NAVY, marginTop:5 },
-  gold:     { height:1.5, backgroundColor:GOLD, marginVertical:8 },
-  goldThin: { height:0.5, backgroundColor:GOLD, marginVertical:6 },
-  row2:     { flexDirection:'row', justifyContent:'space-between', marginBottom:3 },
-  italic:   { fontFamily:'Times-Italic', fontSize:10.5, color:'#333' },
-  bold9:    { fontFamily:'Times-Bold', fontSize:9, color:'#555', letterSpacing:0.5 },
-  company:  { fontFamily:'Times-BoldItalic', fontSize:13, textAlign:'center', color:NAVY, marginVertical:4 },
-  para:     { fontFamily:'Times-Italic', fontSize:9.5, lineHeight:1.7, color:'#333', textAlign:'justify', marginBottom:9 },
-  fRow:     { flexDirection:'row', marginBottom:4 },
-  fLabel:   { fontFamily:'Times-BoldItalic', fontSize:9.5, width:115, color:NAVY, flexShrink:0 },
-  fVal:     { fontSize:9.5, flex:1, color:'#111', fontFamily:'Times-Roman' },
-  tHead:    { flexDirection:'row', backgroundColor:NAVY, padding:'5 10', marginTop:8 },
-  tHdTxt:   { color:GOLD, fontSize:8, letterSpacing:1, fontFamily:'Times-Bold' },
-  tRow:     { flexDirection:'row', borderBottomWidth:0.5, borderBottomColor:'#eee', padding:'5 10' },
-  tRowAlt:  { backgroundColor:'#f9f9f9' },
-  tProd:    { flex:1, fontSize:9, color:'#111', fontFamily:'Times-Roman' },
-  tId:      { width:95, fontSize:8.5, fontFamily:'Courier', color:'#111' },
-  disc:     { fontSize:6.5, color:'#999', textAlign:'justify', lineHeight:1.55, marginTop:10, fontFamily:'Times-Italic' },
-  footer:   { flexDirection:'row', justifyContent:'space-between', alignItems:'flex-end', marginTop:14, paddingTop:10, borderTopWidth:1, borderTopColor:GOLD },
-  fLogo:    { width:100, height:30, objectFit:'contain' },
-  fQrWrap:  { alignItems:'center', gap:3 },
-  fQr:      { width:62, height:62 },
-  fQrLbl:   { fontSize:6.5, color:'#aaa', textAlign:'center', fontFamily:'Times-Roman' },
-  fSig:     { alignItems:'flex-end' },
-  sigRule:  { width:100, height:0.8, backgroundColor:'#444', marginBottom:3 },
-  sigName:  { fontFamily:'Times-Bold', fontSize:9.5, color:NAVY, textAlign:'right' },
-  sigTitle: { fontSize:8, color:'#888', textAlign:'right', fontFamily:'Times-Roman' },
-  cHdr:     { flexDirection:'row', justifyContent:'space-between', alignItems:'center', marginBottom:12, paddingBottom:8, borderBottomWidth:1, borderBottomColor:'#ccc' },
-  cEagle:   { width:44, height:34, opacity:0.65 },
-  pgNum:    { fontSize:8, color:'#aaa', textAlign:'right', marginBottom:4, fontFamily:'Times-Roman' },
+  page:       { backgroundColor: '#e8e2d0', fontFamily: 'Times-Roman' },
+  frame:      { margin: 10, borderWidth: 7, borderColor: N, padding: 4 },
+  g1:         { borderWidth: 3, borderColor: G, padding: 3 },
+  g2:         { borderWidth: 1, borderColor: G },
+  topbar:     { backgroundColor: N, paddingVertical: 7, paddingHorizontal: 20, flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 14 },
+  topbarFlag: { width: 36, height: 24 },
+  topbarTxt:  { color: G, fontSize: 7.5, letterSpacing: 2.5, fontFamily: 'Times-Roman' },
+  paper:      { backgroundColor: '#fffef9', paddingHorizontal: 34, paddingTop: 16, paddingBottom: 14 },
+  emblems:    { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 14, marginBottom: 10 },
+  eagle:      { width: 80, height: 64 },
+  h1:         { fontFamily: 'Times-Bold', fontSize: 20, textAlign: 'center', color: N, letterSpacing: 2, marginBottom: 3 },
+  h2:         { fontFamily: 'Times-Roman', fontSize: 12, textAlign: 'center', color: '#444', marginBottom: 2 },
+  valid:      { fontSize: 11.5, textAlign: 'center', color: N, marginTop: 5 },
+  goldRule:   { height: 2, backgroundColor: G, marginVertical: 8 },
+  thinRule:   { height: 0.5, backgroundColor: G, marginVertical: 6, opacity: 0.4 },
+  row2:       { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 4 },
+  italic:     { fontFamily: 'Times-Italic', fontSize: 11, color: '#333' },
+  bold9:      { fontFamily: 'Times-Bold', fontSize: 9, color: '#555', letterSpacing: 0.8 },
+  company:    { fontFamily: 'Times-BoldItalic', fontSize: 14.5, textAlign: 'center', color: N, marginVertical: 5 },
+  para:       { fontFamily: 'Times-Italic', fontSize: 9.5, lineHeight: 1.75, color: '#333', textAlign: 'justify', marginBottom: 9 },
+  fRow:       { flexDirection: 'row', marginBottom: 4 },
+  fLabel:     { fontFamily: 'Times-BoldItalic', fontSize: 9.5, width: 118, color: N, flexShrink: 0 },
+  fVal:       { fontFamily: 'Times-Roman', fontSize: 9.5, flex: 1, color: '#111' },
+  tHead:      { flexDirection: 'row', backgroundColor: N, paddingVertical: 5, paddingHorizontal: 10, marginTop: 8 },
+  tHdTxt:     { color: G, fontSize: 8, letterSpacing: 1.5, fontFamily: 'Times-Bold' },
+  tRow:       { flexDirection: 'row', borderBottomWidth: 0.5, borderBottomColor: '#eee', paddingVertical: 5, paddingHorizontal: 10 },
+  tRowAlt:    { backgroundColor: '#f8f6f0' },
+  tProd:      { flex: 1, fontSize: 9.5, color: '#111', fontFamily: 'Times-Roman' },
+  tId:        { width: 100, fontSize: 9, fontFamily: 'Courier', color: '#333' },
+  disc:       { fontSize: 6.5, color: '#bbb', textAlign: 'justify', lineHeight: 1.6, marginTop: 10, fontFamily: 'Times-Italic' },
+  footer:     { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-end', marginTop: 12, paddingTop: 10, borderTopWidth: 2, borderTopColor: G },
+  fLogo:      { width: 110, height: 32, objectFit: 'contain' },
+  fQrWrap:    { alignItems: 'center', gap: 3 },
+  fQr:        { width: 64, height: 64 },
+  fQrLbl:     { fontSize: 7, color: '#aaa', textAlign: 'center', fontFamily: 'Times-Roman', letterSpacing: 0.5 },
+  fSig:       { alignItems: 'flex-end' },
+  sigLine:    { width: 110, height: 0.8, backgroundColor: N, marginBottom: 3 },
+  sigName:    { fontFamily: 'Times-Bold', fontSize: 10, color: N, textAlign: 'right' },
+  sigTitle:   { fontSize: 8, color: '#777', textAlign: 'right', fontFamily: 'Times-Roman' },
+  botbar:     { backgroundColor: N, paddingVertical: 6, paddingHorizontal: 20, textAlign: 'center' },
+  botbarTxt:  { color: 'rgba(184,150,62,0.4)', fontSize: 7, letterSpacing: 2, fontFamily: 'Times-Roman' },
+  cHdr:       { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12, paddingBottom: 8, borderBottomWidth: 1.5, borderBottomColor: G },
+  cEagle:     { width: 48, height: 38, opacity: 0.6 },
+  pgNum:      { fontSize: 7.5, color: '#bbb', textAlign: 'right', marginBottom: 3, fontFamily: 'Times-Roman' },
 })
 
 async function makeQR(url: string): Promise<string> {
-  return QRCode.toDataURL(url, { width:124, margin:1, color:{ dark:NAVY, light:'#ffffff' } })
+  return QRCode.toDataURL(url, { width: 128, margin: 1, color: { dark: N, light: '#ffffff' } })
 }
 
-function Field({ label, value }: { label: string; value: string }) {
+function F({ label, value }: { label: string; value: string }) {
   return <View style={s.fRow}><Text style={s.fLabel}>{label}</Text><Text style={s.fVal}>{value}</Text></View>
 }
 
@@ -65,80 +92,115 @@ interface PP { cert: Certificate; qr: string; isEs: boolean; products: Certifica
 
 function CertPage({ cert, qr, isEs, products, pageNum, totalPages }: PP) {
   const typeName  = CERT_TYPE_LABELS[cert.type]
-  const validDate = new Date(cert.expiry_date).toLocaleDateString('en-US',{month:'2-digit',day:'2-digit',year:'numeric'})
-  const issueDate = new Date(cert.issue_date).toLocaleDateString('en-US',{month:'2-digit',day:'2-digit',year:'numeric'})
+  const topbar    = TOPBAR_TEXT[cert.type] || typeName
+  const paraText  = CFR_TEXT[cert.type] || CFR_TEXT.food_initial
+  const discText  = DISC_TEXT[cert.type] || DISC_TEXT.food_initial
+  const validDate = new Date(cert.expiry_date).toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' })
+  const issueDate = new Date(cert.issue_date).toLocaleDateString('en-US', { month: '2-digit', day: '2-digit', year: 'numeric' })
   const prodLabel = PRODUCT_LABEL[cert.type]
-  const pageProds = pageNum===1 ? (products||[]).slice(0,8) : (products||[]).slice(8)
-  const hasMore   = pageNum===1 && (products||[]).length > 8
+  const pageProds = pageNum === 1 ? (products||[]).slice(0,8) : (products||[]).slice(8)
+  const hasMore   = pageNum === 1 && (products||[]).length > 8
+
   return (
     <Page size="LETTER" style={s.page}>
-      <View style={s.rim1}><View style={s.rim2}><View style={s.rim3}><View style={s.paper}>
-        {totalPages>1 && <Text style={s.pgNum}>Page {pageNum} of {totalPages}</Text>}
-        {pageNum===1 ? (<>
-          <View style={s.emblems}>
-            <Image src={FLAG} style={s.flag}/>
-            <Image src={EAGLE} style={s.eagle}/>
-            <Image src={FLAG} style={s.flag}/>
-          </View>
-          <Text style={s.h1}>Certificate of Registration</Text>
-          <Text style={s.h2}>{typeName}</Text>
-          <Text style={s.valid}>{isEs?'Válido hasta:':'Valid:'}{' '}<Text style={{fontFamily:'Times-Bold'}}>{validDate}</Text></Text>
-        </>) : (
-          <View style={s.cHdr}>
-            <View>
-              <Text style={{fontFamily:'Times-Bold',fontSize:12,color:NAVY}}>Certificate of Registration — Continuation</Text>
-              <Text style={{fontSize:9,color:'#555',marginTop:2,fontFamily:'Times-Roman'}}>{typeName} · {cert.company_name}</Text>
-              <Text style={{fontSize:9,color:'#888',marginTop:1,fontFamily:'Times-Roman'}}>Reg: {cert.registration_number} · Valid: {validDate} · Issued: {issueDate}</Text>
+      <View style={s.frame}><View style={s.g1}><View style={s.g2}>
+
+        {/* Top bar — V5 style: flags + type name */}
+        <View style={s.topbar}>
+          <Image src={FLAG} style={s.topbarFlag} />
+          <Text style={s.topbarTxt}>{topbar.toUpperCase()}</Text>
+          <Image src={FLAG} style={s.topbarFlag} />
+        </View>
+
+        <View style={s.paper}>
+          {totalPages > 1 && <Text style={s.pgNum}>Page {pageNum} of {totalPages}</Text>}
+
+          {pageNum === 1 ? (<>
+            <View style={s.emblems}>
+              <Image src={EAGLE} style={s.eagle} />
+              <View style={{ flex: 1, alignItems: 'center' }}>
+                <Text style={s.h1}>Certificate of Registration</Text>
+                <Text style={s.h2}>{typeName}</Text>
+                <Text style={s.valid}>
+                  {isEs ? 'Válido hasta:' : 'Valid through:'}{' '}
+                  <Text style={{ fontFamily: 'Times-Bold' }}>{validDate}</Text>
+                </Text>
+              </View>
+              <Image src={EAGLE} style={s.eagle} />
             </View>
-            <Image src={EAGLE} style={s.cEagle}/>
-          </View>
-        )}
-        <View style={s.gold}/>
-        {pageNum===1 && (<>
-          <View style={s.row2}>
-            <Text style={s.italic}>{isEs?'Este certificado confirma que:':'This certifies that:'}</Text>
-            <Text style={s.bold9}>ISSUED: {issueDate}</Text>
-          </View>
-          <Text style={s.company}>{cert.company_name}</Text>
-          <View style={s.gold}/>
-          <Text style={s.para}>{isEs?`Está registrado ante la Administración de Alimentos y Medicamentos de los Estados Unidos conforme a la Ley Federal de Alimentos, Medicamentos y Cosméticos, modificada por la Ley contra el Bioterrorismo de 2002 y la Ley de Modernización de la Inocuidad Alimentaria de la FDA, habiéndose verificado dicho registro como actualmente vigente a la fecha por Fast Forward:`:`Is registered with the US Food and Drug Administration pursuant to the Federal Food Drug and Cosmetic Act, as amended by the Bioterrorism Act of 2002 and the FDA Food Safety Modernization Act, such registration having been verified as currently effective on the date hereof by Fast Forward:`}</Text>
-          <Field label={isEs?'Número de Registro:':'Registration Number:'} value={cert.registration_number}/>
-          <Field label={isEs?'Dirección de Instalación:':'Facility Address:'} value={cert.facility_address}/>
-          <Field label="DUNS #:" value={cert.duns_number||'N/A'}/>
-          <Field label={isEs?'Agente en EE.UU.:':'US Agent:'} value="FASTFORWARD TRADING COMPANY, LLC"/>
-          <Field label="" value="US AGENT ID: USID0408350"/>
-          <Field label="" value="33 SW 2nd Ave, Ste 702, Miami, Florida, United States"/>
-        </>)}
-        {pageNum===2 && <Text style={{...s.para,marginBottom:8}}>{isEs?`Productos adicionales — continuación del certificado emitido el ${issueDate}:`:`Additional registered products — continuation of certificate issued on ${issueDate}:`}</Text>}
-        {pageProds&&pageProds.length>0&&HAS_PRODUCTS.includes(cert.type)&&(<>
-          <View style={s.goldThin}/>
-          <View style={s.tHead}>
-            <Text style={{...s.tHdTxt,flex:1}}>{isEs?'Producto / Artículo':'Product / Item'}</Text>
-            <Text style={{...s.tHdTxt,width:95}}>{prodLabel}</Text>
-          </View>
-          {pageProds.map((p,i)=>(
-            <View key={p.id} style={[s.tRow,i%2===1?s.tRowAlt:{}]}>
-              <Text style={s.tProd}>{p.product_name}</Text>
-              <Text style={s.tId}>{p.product_id}</Text>
+          </>) : (
+            <View style={s.cHdr}>
+              <View>
+                <Text style={{ fontFamily: 'Times-Bold', fontSize: 12, color: N }}>Certificate of Registration — Continuation</Text>
+                <Text style={{ fontSize: 9, color: '#555', marginTop: 2, fontFamily: 'Times-Roman' }}>{typeName} · {cert.company_name}</Text>
+                <Text style={{ fontSize: 9, color: '#888', marginTop: 1, fontFamily: 'Times-Roman' }}>Reg: {cert.registration_number} · Valid: {validDate} · Issued: {issueDate}</Text>
+              </View>
+              <Image src={EAGLE} style={s.cEagle} />
             </View>
-          ))}
-          {hasMore&&<Text style={{fontSize:8,color:NAVY,fontFamily:'Times-Italic',marginTop:4}}>{isEs?'→ Continúa en la página 2':'→ Continued on page 2'}</Text>}
-        </>)}
-        <Text style={s.disc}>{DISC}</Text>
-        <View style={s.footer}>
-          <Image src={LOGO} style={s.fLogo}/>
-          <View style={s.fQrWrap}>
-            <Image src={qr} style={s.fQr}/>
-            <Text style={s.fQrLbl}>{isEs?'Escanear para validar':'Scan to validate'}</Text>
-          </View>
-          <View style={s.fSig}>
-            <View style={{width:100,height:22,marginBottom:2}}/>
-            <View style={s.sigRule}/>
-            <Text style={s.sigName}>Carlos Bisio</Text>
-            <Text style={s.sigTitle}>CEO, FastForward Trading Company</Text>
+          )}
+
+          <View style={s.goldRule} />
+
+          {pageNum === 1 && (<>
+            <View style={s.row2}>
+              <Text style={s.italic}>{isEs ? 'Este certificado confirma que:' : 'This certifies that:'}</Text>
+              <Text style={s.bold9}>ISSUED: {issueDate}</Text>
+            </View>
+            <Text style={s.company}>{cert.company_name}</Text>
+            <View style={s.goldRule} />
+            <Text style={s.para}>{paraText}</Text>
+            <F label={isEs ? 'Número de Registro:' : 'Registration Number:'} value={cert.registration_number} />
+            <F label={isEs ? 'Dirección:' : 'Facility Address:'} value={cert.facility_address} />
+            <F label="DUNS #:" value={cert.duns_number || 'N/A'} />
+            <F label={isEs ? 'Agente en EE.UU.:' : 'US Agent:'} value="FASTFORWARD TRADING COMPANY, LLC" />
+            <F label="" value="US AGENT ID: USID0408350" />
+            <F label="" value="33 SW 2nd Ave, Ste 702, Miami, Florida, United States" />
+          </>)}
+
+          {pageNum === 2 && (
+            <Text style={{ ...s.para, marginBottom: 8 }}>
+              {isEs ? `Productos adicionales — continuación del certificado emitido el ${issueDate}:` : `Additional registered products — continuation of certificate issued on ${issueDate}:`}
+            </Text>
+          )}
+
+          {pageProds && pageProds.length > 0 && HAS_PRODUCTS.includes(cert.type) && (<>
+            <View style={s.thinRule} />
+            <View style={s.tHead}>
+              <Text style={{ ...s.tHdTxt, flex: 1 }}>{isEs ? 'Producto / Artículo' : 'Product / Item'}</Text>
+              <Text style={{ ...s.tHdTxt, width: 100 }}>{prodLabel}</Text>
+            </View>
+            {pageProds.map((p, i) => (
+              <View key={p.id} style={[s.tRow, i % 2 === 1 ? s.tRowAlt : {}]}>
+                <Text style={s.tProd}>{p.product_name}</Text>
+                <Text style={s.tId}>{p.product_id}</Text>
+              </View>
+            ))}
+            {hasMore && <Text style={{ fontSize: 8, color: N, fontFamily: 'Times-Italic', marginTop: 4 }}>→ Continued on page 2</Text>}
+          </>)}
+
+          <Text style={s.disc}>{discText}</Text>
+
+          <View style={s.footer}>
+            <Image src={LOGO} style={s.fLogo} />
+            <View style={s.fQrWrap}>
+              <Image src={qr} style={s.fQr} />
+              <Text style={s.fQrLbl}>{isEs ? 'Escanear para validar' : 'Scan to validate'}</Text>
+            </View>
+            <View style={s.fSig}>
+              <View style={{ width: 110, height: 24, marginBottom: 2 }} />
+              <View style={s.sigLine} />
+              <Text style={s.sigName}>Carlos Bisio</Text>
+              <Text style={s.sigTitle}>US Agent</Text>
+              <Text style={s.sigTitle}>FastForward Trading Company, LLC</Text>
+            </View>
           </View>
         </View>
-      </View></View></View></View>
+
+        <View style={s.botbar}>
+          <Text style={s.botbarTxt}>FASTFORWARD TRADING COMPANY, LLC  ·  33 SW 2ND AVE, STE 702, MIAMI, FLORIDA  ·  FASTFWDUS.COM</Text>
+        </View>
+
+      </View></View></View>
     </Page>
   )
 }
@@ -146,12 +208,13 @@ function CertPage({ cert, qr, isEs, products, pageNum, totalPages }: PP) {
 export async function generateCertificatePDF(cert: Certificate, appUrl: string): Promise<Buffer> {
   const { renderToBuffer } = await import('@react-pdf/renderer')
   const qr         = await makeQR(`${appUrl}/validate?credential=${cert.validation_id}`)
-  const isEs       = cert.language==='es'
-  const products   = cert.products||[]
-  const totalPages = HAS_PRODUCTS.includes(cert.type)&&products.length>8 ? 2 : 1
-  const doc = React.createElement(Document,{title:`FDA Certificate — ${cert.company_name}`,author:'FastForward Trading Company'},
-    React.createElement(CertPage,{cert,qr,isEs,products,pageNum:1,totalPages}),
-    ...(totalPages===2?[React.createElement(CertPage,{cert,qr,isEs,products,pageNum:2,totalPages})]:[])
+  const isEs       = cert.language === 'es'
+  const products   = cert.products || []
+  const totalPages = HAS_PRODUCTS.includes(cert.type) && products.length > 8 ? 2 : 1
+  const doc = React.createElement(Document,
+    { title: `FDA Certificate — ${cert.company_name}`, author: 'FastForward Trading Company' },
+    React.createElement(CertPage, { cert, qr, isEs, products, pageNum: 1, totalPages }),
+    ...(totalPages === 2 ? [React.createElement(CertPage, { cert, qr, isEs, products, pageNum: 2, totalPages })] : [])
   )
   return Buffer.from(await renderToBuffer(doc))
 }
