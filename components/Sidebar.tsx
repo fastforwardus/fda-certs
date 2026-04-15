@@ -17,18 +17,15 @@ export default function Sidebar({ role }: { role: string }) {
   const pathname = usePathname()
   const router = useRouter()
   const nav = role === 'admin' ? adminNav : userNav
-
   function isActive(href: string) {
     if (href === '/') return pathname === '/'
     return pathname.startsWith(href)
   }
-
   async function handleLogout() {
     await fetch('/api/auth/logout', { method: 'POST' })
     router.push('/login')
     router.refresh()
   }
-
   return (
     <aside style={{width:224,background:'#1a3a5c',display:'flex',flexDirection:'column',flexShrink:0,height:'100vh'}}>
       <div style={{padding:'20px',borderBottom:'1px solid rgba(255,255,255,0.1)'}}>
