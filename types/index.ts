@@ -1,0 +1,87 @@
+export type Role = 'admin' | 'user'
+
+export type CertType =
+  | 'food_initial'
+  | 'food_renewal'
+  | 'food_low_acid'
+  | 'mocra'
+  | 'drug'
+
+export type CertStatus = 'active' | 'expiring' | 'expired'
+
+export type Language = 'en' | 'es'
+
+export interface User {
+  id: string
+  name: string
+  email: string
+  role: Role
+  created_at: string
+}
+
+export interface Product {
+  id: string
+  certificate_id: string
+  product_name: string
+  product_id: string
+  sort_order: number
+}
+
+export interface Certificate {
+  id: string
+  cert_number: string
+  type: CertType
+  company_name: string
+  registration_number: string
+  duns_number: string
+  facility_address: string
+  issue_date: string
+  expiry_date: string
+  language: Language
+  status: CertStatus
+  created_by: string
+  created_by_name?: string
+  validation_id: string
+  pages: number
+  created_at: string
+  products?: Product[]
+}
+
+export interface CreateCertPayload {
+  type: CertType
+  company_name: string
+  registration_number: string
+  duns_number: string
+  facility_address: string
+  expiry_date: string
+  language: Language
+  products?: { product_name: string; product_id: string }[]
+  send_email?: boolean
+  recipient_email?: string
+}
+
+export const CERT_TYPE_LABELS: Record<CertType, string> = {
+  food_initial: 'FDA Facility Registration',
+  food_renewal: 'FDA Facility Renewal 2026',
+  food_low_acid: 'FDA Low acid Foods Establishment',
+  mocra: 'MoCRA Compliance',
+  drug: 'Drug Establishment Registration',
+}
+
+export const CERT_TYPE_DISPLAY: Record<CertType, string> = {
+  food_initial: 'Food Initial',
+  food_renewal: 'Food Renewal',
+  food_low_acid: 'Food Low Acid',
+  mocra: 'MoCRA',
+  drug: 'Drug',
+}
+
+export const PRODUCT_LABEL: Record<CertType, string> = {
+  food_initial: '',
+  food_renewal: '',
+  food_low_acid: 'SID #',
+  mocra: 'CPLN #',
+  drug: 'NDC #',
+}
+
+export const HAS_PRODUCTS: CertType[] = ['food_low_acid', 'mocra', 'drug']
