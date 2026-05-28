@@ -187,7 +187,7 @@ function CertPage({ cert, qr, isEs, products, pageNum, totalPages }: PP) {
               <Text style={s.fQrLbl}>{isEs ? 'Escanear para validar' : 'Scan to validate'}</Text>
             </View>
             <View style={s.fSig}>
-              <View style={{ width: 110, height: 24, marginBottom: 2 }} />
+              <Image src="https://fda-certs.vercel.app/cert-assets/signature.png" style={{width:110,height:36,objectFit:"contain",marginBottom:2}}/>
               <View style={s.sigLine} />
               <Text style={s.sigName}>Carlos Bisio</Text>
               <Text style={s.sigTitle}>US Agent</Text>
