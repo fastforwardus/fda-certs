@@ -5,7 +5,7 @@ import { Certificate, CertType, CERT_TYPE_DISPLAY } from '@/types'
 import StatusBadge from '@/components/StatusBadge'
 import TypeBadge from '@/components/TypeBadge'
 
-const TYPES: CertType[] = ['food_initial', 'food_renewal', 'food_low_acid', 'mocra', 'drug']
+const TYPES: CertType[] = ['food_initial', 'food_renewal', 'food_low_acid', 'mocra', 'drug', 'medical_device']
 
 export default function CertificatesClient({ certs, isAdmin }: { certs: Certificate[]; isAdmin: boolean }) {
   const [search, setSearch] = useState('')

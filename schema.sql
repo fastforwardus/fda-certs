@@ -17,7 +17,7 @@ CREATE TABLE IF NOT EXISTS users (
 CREATE TABLE IF NOT EXISTS certificates (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   cert_number VARCHAR(50) UNIQUE NOT NULL,
-  type VARCHAR(30) NOT NULL CHECK (type IN ('food_initial','food_renewal','food_low_acid','mocra','drug')),
+  type VARCHAR(30) NOT NULL CHECK (type IN ('food_initial','food_renewal','food_low_acid','mocra','drug','medical_device')),
   company_name VARCHAR(255) NOT NULL,
   registration_number VARCHAR(100) NOT NULL,
   duns_number VARCHAR(50) DEFAULT 'N/A',

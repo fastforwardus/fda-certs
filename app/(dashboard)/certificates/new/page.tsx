@@ -3,7 +3,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { CertType, CERT_TYPE_LABELS, CERT_TYPE_DISPLAY, HAS_PRODUCTS, PRODUCT_LABEL } from '@/types'
 
-const TYPES: CertType[] = ['food_initial', 'food_renewal', 'food_low_acid', 'mocra', 'drug']
+const TYPES: CertType[] = ['food_initial', 'food_renewal', 'food_low_acid', 'mocra', 'drug', 'medical_device']
 
 interface Product { product_name: string; product_id: string; status: string }
 
