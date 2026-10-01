@@ -1,6 +1,13 @@
 /** @type {import('next').NextConfig} */
+const TEMPLATES = ['./public/cert-templates/**/*']
+
 const nextConfig = {
-  serverExternalPackages: ['@react-pdf/renderer', 'canvas'],
+  serverExternalPackages: ['canvas'],
+  outputFileTracingIncludes: {
+    '/api/certificates': TEMPLATES,
+    '/api/certificates/[id]/pdf': TEMPLATES,
+    '/api/certificates/[id]/send': TEMPLATES,
+  },
   images: {
     remotePatterns: [
       { protocol: 'https', hostname: 'fastfwdus.com' },
